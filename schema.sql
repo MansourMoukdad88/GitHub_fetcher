@@ -4,7 +4,7 @@ CREATE DATABASE mansour;
 
 USE mansour;
 
-CREATE TABLE repos (
+CREATE TABLE Repos (
   id int NOT NULL AUTO_INCREMENT,
   repo_id integer NOT NULL,
   user_name varchar(50) NOT NULL,
