@@ -1,23 +1,18 @@
 import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
-//import { nav } from "bootstrap";
+//import { Navbar } from "react-bootstrap";
 import $ from "jquery";
+//import "./main.css";
 import Search from "./components/Search.jsx";
 import RepoList from "./components/RepoList.jsx";
+import ListView from "./components/ListView.jsx";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      repos: [],
-      username: null,
-      id: null,
-      url: null,
-      avatar_url: null,
-      followers: null,
-      following: null,
-      created_at: null,
-      public_repos: null
+      user: null,
+      repos: []
     };
   }
 
@@ -42,65 +37,81 @@ class App extends React.Component {
     )
       .then(response => response.json())
       .then(response => {
-        console.log(response);
+        console.log("FETCH user from client", response);
         return response;
       });
   }
+  getUserRepo(username) {
+    return fetch(`https://api.github.com/users/${username}/repos`)
+      .then(response => response.json())
+      .then(response => {
+        return response;
+      });
+  }
+
   async handleSubmit(e) {
-    let username;
     e.preventDefault();
-    let user = await this.getUser(this.refs.username.value);
+
+    const { value } = this.refs.username;
+    let user = await this.getUser(value);
+    let repos = await this.getUserRepo(value);
+
     this.setState({
-      username: user.login,
-      id: user.id,
-      url: user.url,
-      avatar_url: user.avatar_url,
-      followers: user.followers,
-      following: user.following,
-      created_at: user.created_at,
-      public_repos: user.public_repos
+      user: {
+        avatar_url: user.avatar_url,
+        username: user.login,
+        followers: user.followers,
+        following: user.following,
+        url: user.url,
+        public_repos: user.public_repos
+      },
+      repos
     });
   }
-  render() {
-    let user;
-    if (this.state.username) {
-      user = (
-        <div>
-          <img src={this.state.avatar_url} width="128" height="128" />
-          <p>
-            <span>Username:</span>
-            {this.state.username} <br />
-            <span>ID:</span> {this.state.id}
-            <br />
-            <span>URL:</span>
-            {this.state.url}
-            <br />
-            <span>Followers:</span> {this.state.followers}
-            <br />
-            <span>Following:</span> {this.state.following}
-            <br />
-            <span>Created At:</span> {this.state.created_at}
-            <br />
-            <span>Public Repos:</span> {this.state.public_repos}
-          </p>
+
+  renderRepos(repos) {
+    return repos.map(item => {
+      return (
+        <div key={item.id} className="repoResults">
+          <p>{item.name}</p>
         </div>
       );
-    }
+    });
+  }
 
+  renderUser(user) {
     return (
-      <div>
-        <header>
-          <h1>Github Fetcher</h1>
-        </header>
-        <RepoList repos={this.state.repos} />
-        <Search onSearch={this.search.bind(this)} />
+      <div className="resultBadge">
+        <img src={user.avatar_url} width="128" height="128" />
+        <p className="userInfo">
+          Username: <br />
+          {user.username}
+        </p>
+        <p className="followerInfo">{user.followers} Followers</p>
+        <p className="followingInfo">Following {user.following} users</p>
+      </div>
+    );
+  }
 
+  render() {
+    const { user, repos } = this.state;
+    return (
+      <div className="GitHubSearch">
+        <header className="Search-header">
+          <h1 className="header1">Github Fetcher</h1>
+          <h2>Github User Search </h2>
+        </header>
         <form onSubmit={e => this.handleSubmit(e)}>
-          Enter a github username:
           <input ref="username" type="text" placeholder="username" />
-          <button onClick={e => this.handleSubmit(e)}>Search</button>
         </form>
-        <p>{user}</p>
+        <div className="Search-intro">
+          <h4> User info: </h4>
+          {user && this.renderUser(user)}
+        </div>
+        <div>
+          <RepoList repos={this.state.repos} />
+          <ListView repos={this.state.repos} />
+        </div>
       </div>
     );
   }
