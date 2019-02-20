@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+if (process.env.NODE_ENV === 'production') {
 
 var connection = mysql.createConnection({
   host: "sql7.freemysqlhosting.net",
@@ -6,7 +7,14 @@ var connection = mysql.createConnection({
   password: "6gi2mD4wup",
   database: "sql7279609"
 });
-
+} else {
+  var connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "password",
+    database: "educompassy"
+  });
+}
 connection.connect(err => {
   if (err) {
     return err;

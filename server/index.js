@@ -20,13 +20,12 @@ app.post("/repos", function(req, res) {
   // save the repo information in the database
 
   //console.log("REQUEST.....", req.body);
-
   var username = req.body.username;
   sqlData.getRepos(username, function(err, results) {
     if (err) {
       console.log(err);
     } else {
-      console.log("GET REPOS.....", results);
+      console.log("GET REPOS.....results (in server)", results);
       if (results.length > 0) {
         res.send(results);
       } else {
@@ -42,7 +41,7 @@ app.post("/repos", function(req, res) {
 app.get("/repos", function(req, res) {
   // TODO - your code here!
   // This route should send back the top 25 repos
-  sqlData.getRepos.query(req.body.username, function(data) {
+  sqlData.getRepos(req.body.username, function(data) {
     console.log("......Data From DB.....", data);
     //res.json(data);
     res.send(data);
